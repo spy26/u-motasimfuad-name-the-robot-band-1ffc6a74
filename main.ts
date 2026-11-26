@@ -10,14 +10,19 @@ import { dirname, resolve } from "node:path";
 const ENTRY =
   "The Buffering Boys - their hit 'Loading...' has been number one since 2019. It still hasn't finished.";
 
+// The competition caps the whole entry at 200 characters (name + hit-song
+// words in one line); keep the limit next to the text so a future edit to
+// the entry cannot silently break it.
+const MAX_CHARS = 200;
+
 function fail(message: string): never {
   throw new Error(message);
 }
 
 function validateEntry(text: string): void {
   if (text.length === 0) fail("entry is empty");
-  if (text.length > 200) {
-    fail(`entry is ${text.length} characters, over the 200-character limit`);
+  if (text.length > MAX_CHARS) {
+    fail(`entry is ${text.length} characters, over the ${MAX_CHARS}-character limit`);
   }
   const lines = text.split("\n");
   if (lines.length !== 1) {
@@ -75,6 +80,7 @@ function main(): void {
   if (mirror !== primary) tryMirror(mirror, bytes);
 
   process.stderr.write(`sha256(entry.txt): ${sha256Hex(bytes)}\n`);
+  process.stderr.write(`chars: ${ENTRY.length}/${MAX_CHARS}\n`);
   process.stdout.write(ENTRY + "\n");
 }
 
